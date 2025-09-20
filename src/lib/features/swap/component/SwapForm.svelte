@@ -48,6 +48,7 @@
 			bind:selectedChain={swapState.chain}
 		/>
 		<SwapInput
+			isLoading={swapState.isLoadingQuotes}
 			bind:token={
 				() => swapState.token2,
 				(value) => {

@@ -50,18 +50,19 @@
 		});
 	});
 
-	const balance = $derived(token ? getTokenBalance(token) : 0);
+	const balance = $derived(token ? untrack(() => (token ? getTokenBalance(token) : 0)) : 0);
 </script>
 
 <label class="">
-	<Card.Root class="focus-within:ring-2 ring-primary bg-background/40">
+	<Card.Root class="bg-background/40 ring-primary focus-within:ring-2">
 		<Card.Content class="flex gap-2 max-sm:px-4">
 			<input
 				bind:value={rawInputValue}
-				class="grow outline-0 max-h-[36px] w-full"
+				class="max-h-[36px] w-full grow outline-0"
 				placeholder={inputPlaceHolder}
+				disabled={isLoading}
 			/>
-			<div class="flex flex-col gap-2 items-end">
+			<div class="flex flex-col items-end gap-2">
 				<SelectTokenModal
 					bind:token={
 						() => token,
@@ -74,9 +75,9 @@
 					{...props}
 				/>
 				<div class="flex gap-2 text-muted-foreground">
-					<div class="text-xs flex items-center">
+					<div class="flex items-center text-xs">
 						{#await balance}
-							<LucideLoader class="animate-spin size-[15.99px]" />
+							<LucideLoader class="size-[15.99px] animate-spin" />
 						{:then value}
 							{(+(Number(value) / 10 ** (token?.decimals ?? 18)).toPrecision(6))
 								.toString()
@@ -87,7 +88,7 @@
 						<Button
 							onclick={async () =>
 								(rawInputValue = String(Number(await balance) / 10 ** (token?.decimals ?? 18)))}
-							class="text-xs p-0 h-min cursor-pointer"
+							class="h-min cursor-pointer p-0 text-xs"
 							size="sm"
 							variant="link"
 						>

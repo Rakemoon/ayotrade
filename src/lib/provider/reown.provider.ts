@@ -2,14 +2,14 @@
 import { browser } from '$app/environment';
 import { createAppKit } from '@reown/appkit';
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
-import { arbitrum, mainnet, base, bsc, type AppKitNetwork } from '@reown/appkit/networks';
+import { arbitrum, mainnet, base, bsc, type AppKitNetwork, polygon } from '@reown/appkit/networks';
 import { hydrate } from '@wagmi/core';
 
 // Only initialize in browser environment
 let appKit: ReturnType<typeof createAppKit> | undefined = undefined;
 let wagmiAdapter: WagmiAdapter;
 
-const selectedChains = [mainnet, arbitrum, base, bsc] satisfies [
+const selectedChains = [mainnet, arbitrum, base, bsc, polygon] satisfies [
 	AppKitNetwork,
 	...AppKitNetwork[]
 ];

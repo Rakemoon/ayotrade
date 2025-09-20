@@ -2,7 +2,7 @@ import { appStore } from '$lib/store';
 import type { PortofolioResult, Token } from '$lib/types';
 import { queryCache } from '$lib/utils';
 import { getBalance, readContract } from '@wagmi/core';
-import { bsc, mainnet, base, arbitrum } from 'viem/chains';
+import { bsc, mainnet, base, arbitrum, polygon } from 'viem/chains';
 import { wagmiAdapter } from './reown.provider';
 import { erc20Abi } from 'viem';
 
@@ -10,7 +10,8 @@ const endpointNames = {
 	[mainnet.id]: 'ethereum',
 	[bsc.id]: 'binance-smart-chain',
 	[base.id]: 'base',
-	[arbitrum.id]: 'arbitrum-one'
+	[arbitrum.id]: 'arbitrum-one',
+	[polygon.id]: 'polygon-pos'
 };
 
 export async function getTokenByChain(
@@ -116,18 +117,25 @@ export function getPortofolio(chainId: number) {
 
 export async function getTokenBalance(token: Token) {
 	const accountAddress = appStore.wagmi.account?.address;
-	if (!accountAddress) return 0n;
-	if (token.address === '0x0000000000000000000000000000000000000000')
-		return getBalance(wagmiAdapter.wagmiConfig, {
-			chainId: token.chainId,
-			address: accountAddress
-		}).then((x) => x.value);
+	const blockNumber = appStore.wagmi.blockNumber;
+	return queryCache({
+		key: 'eth:balance:' + token.address + ':' + token.chainId,
+		deps: [accountAddress, blockNumber],
+		fn: () => {
+			if (!accountAddress) return 0n;
+			if (token.address === '0x0000000000000000000000000000000000000000')
+				return getBalance(wagmiAdapter.wagmiConfig, {
+					chainId: token.chainId,
+					address: accountAddress
+				}).then((x) => x.value);
 
-	return readContract(wagmiAdapter.wagmiConfig, {
-		address: token.address,
-		chainId: token.chainId,
-		abi: erc20Abi,
-		functionName: 'balanceOf',
-		args: [accountAddress]
+			return readContract(wagmiAdapter.wagmiConfig, {
+				address: token.address,
+				chainId: token.chainId,
+				abi: erc20Abi,
+				functionName: 'balanceOf',
+				args: [accountAddress]
+			});
+		}
 	});
 }

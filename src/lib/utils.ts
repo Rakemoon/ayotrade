@@ -24,7 +24,7 @@ const cacheRecord = {} as Record<
 	string,
 	{
 		value: unknown;
-		lastDeps: (string | number)[];
+		lastDeps: unknown[];
 		promise: unknown;
 	}
 >;
@@ -32,7 +32,7 @@ const cacheRecord = {} as Record<
 export async function queryCache<Fn extends () => any>(props: {
 	key: string;
 	fn: Fn;
-	deps: (string | number)[];
+	deps: unknown[];
 }): Promise<Awaited<ReturnType<Fn>> | null> {
 	if (!browser) return null;
 	const record = cacheRecord[props.key];
